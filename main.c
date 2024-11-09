@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
       if (cmp(&sections[i].Name[0], ".beef", 5) != 0)
          continue;
 
-      target_buffer = valloc(NULL, sections[i].Misc.VirtualSize, MEM_COMMIT, PAGE_EXECUTE_READ);
+      target_buffer = valloc(NULL, sections[i].Misc.VirtualSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
       cpy(target_buffer, &this[sections[i].VirtualAddress], sections[i].Misc.VirtualSize);
       break;
    }
