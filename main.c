@@ -60,9 +60,9 @@ uint8_t *get_import_by_hash(uint8_t *module, uint32_t hash) {
 
 int main(int argc, char *argv[]) {
    uint8_t *kernel32 = (uint8_t *)GetModuleHandleA("kernel32");
-   uint8_t *msvcrt = LoadLibraryA("msvcrt");
+   uint8_t *msvcrt = (uint8_t *)LoadLibraryA("msvcrt");
    void * (*cpy)(void *, void *, size_t) = (void *(*)(void *, void *, size_t))get_import_by_hash(msvcrt, 0xa45cec64);
-   int (*cmp)(void *, void *, size_t) = (int *(*)(void *, void *, size_t))get_import_by_hash(msvcrt, 0xaf3caa0a);
+   int (*cmp)(void *, void *, size_t) = (int (*)(void *, void *, size_t))get_import_by_hash(msvcrt, 0xaf3caa0a);
    void * (*valloc)(void *, size_t, uint32_t, uint32_t) = (void *(*)(void *, size_t, uint32_t, uint32_t))get_import_by_hash(kernel32, 0x03285501);
 
    uint8_t *this = (uint8_t *)GetModuleHandle(NULL);
