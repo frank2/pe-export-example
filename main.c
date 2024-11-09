@@ -27,6 +27,8 @@ uint8_t *get_import_by_hash(uint8_t *module, uint32_t hash) {
    return NULL;
 }
 
+uint32_t target_function(void);
+
 int main(int argc, char *argv[]) {
    uint32_t (*ptr)(void) = target_function;
    uint32_t value = ptr();
