@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <windows.h>
 
 #pragma code_seg(push, r1, ".text")
 uint32_t fnv321a(const char *str) {
