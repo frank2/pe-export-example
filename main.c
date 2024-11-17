@@ -26,12 +26,14 @@ uint8_t *get_import_by_hash(uint8_t *module, uint32_t hash) {
    uint32_t *names = (uint32_t *)&module[export_dir->AddressOfNames];
    uint16_t *name_ordinals = (uint16_t *)&module[export_dir->AddressOfNameOrdinals];
 
-   for (size_t i=0; i<export_dir->NumberOfFunctions; ++i) {
-      if (fnv321a((const char *)&module[names[name_ordinals[i]]]) != hash)
+   for (size_t i=0; i<export_dir->NumberOfNames; ++i) {
+      if (fnv321a((const char *)&module[names[i]]) != hash)
          continue;
+
+      uint32_t func_rva = functions[name_ordinals[i]];
       
-      if (functions[i] >= export_datadir->VirtualAddress && functions[i] < export_datadir->VirtualAddress+export_datadir->Size) {
-         const char *forwarder = (const char *)&module[functions[i]];
+      if (func_rva >= export_datadir->VirtualAddress && func_rva < export_datadir->VirtualAddress+export_datadir->Size) {
+         const char *forwarder = (const char *)&module[func_rva];
          char *forwarder_mut = malloc(strlen(forwarder)+1);
          memcpy(forwarder_mut, forwarder, strlen(forwarder)+1);
          char *func;
@@ -52,7 +54,7 @@ uint8_t *get_import_by_hash(uint8_t *module, uint32_t hash) {
          return proc;
       }
          
-      return &module[functions[i]];
+      return &module[func_rva];
    }
 
    return NULL;
@@ -61,8 +63,11 @@ uint8_t *get_import_by_hash(uint8_t *module, uint32_t hash) {
 int main(int argc, char *argv[]) {
    uint8_t *kernel32 = (uint8_t *)GetModuleHandleA("kernel32");
    uint8_t *msvcrt = (uint8_t *)LoadLibraryA("msvcrt");
+   /* memcpy */
    void * (*cpy)(void *, void *, size_t) = (void *(*)(void *, void *, size_t))get_import_by_hash(msvcrt, 0xa45cec64);
+   /* memcmp */
    int (*cmp)(void *, void *, size_t) = (int (*)(void *, void *, size_t))get_import_by_hash(msvcrt, 0xaf3caa0a);
+   /* VirtualAlloc */
    void * (*valloc)(void *, size_t, uint32_t, uint32_t) = (void *(*)(void *, size_t, uint32_t, uint32_t))get_import_by_hash(kernel32, 0x03285501);
 
    uint8_t *this = (uint8_t *)GetModuleHandle(NULL);
